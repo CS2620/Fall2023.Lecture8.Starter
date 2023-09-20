@@ -15,36 +15,26 @@ width = image.size[0]
 height = image.size[1]
 
 
-container:Container = Container(width*2, height*2)
+container:Container = Container(max(width, height), max(width,height))
 
 
 layer1:Layer = Layer(width, height, 0, 0)
 container.add_layer(layer1)
 
-layer2:Layer = Layer(width, height, width, 0)
-container.add_layer(layer2)
 
-layer3:Layer = Layer(width, height, 0, height)
-container.add_layer(layer3)
-
-layer4:Layer = Layer(width, height, width, height)
-container.add_layer(layer4)
-
-
-# Loop through all the layers and give them values
+# Loop through all the layer(s) and give them pixels
 for y in range(height):
     for x in range(width):
         pixel = bridge_buffer[x, y]
 
-        r, g, b = pixel
-        avg = math.floor((r + g + b)/3)
-        v = max(r,g,b)
-        ntsc = math.floor(0.2126 *r + 0.7152 *g + 0.0722 * b )
-
         layer1.set_pixel(x, y, pixel)
-        layer2.set_pixel(x, y, (avg, avg, avg))
-        layer3.set_pixel(x, y, (v,v,v))
-        layer4.set_pixel(x, y, (ntsc, ntsc, ntsc))
+
+# layer1.flip_horizontal()        
+#layer1.flip_vertical()        
+# layer1.rotate_counter_clockwise()        
+# layer1.rotate_counter_clockwise()        
+# layer1.rotate_counter_clockwise()        
+# layer1.rotate_counter_clockwise()        
 
 
 container.save("done.png")
