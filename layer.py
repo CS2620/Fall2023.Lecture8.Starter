@@ -1,3 +1,6 @@
+import math
+
+
 class Layer:
     """Class that stores the pixel data of an image layer"""
 
@@ -13,6 +16,10 @@ class Layer:
         index = self.pixelIndex(x, y)
         self.pixels[index] = color
 
+    def get_pixel(self, x, y):
+        index = self.pixelIndex(x, y)
+        return self.pixels[index]
+
     # Get the index of a pixel in our linear array
     def pixelIndex(self, x, y):
         """Given x and y, find the index in our linear array."""
@@ -20,10 +27,138 @@ class Layer:
         return index
 
     def flip_horizontal(self):
-        pass
+        new_pixels = [0, 0, 0] * self.width * self.height
+        for y in range(self.height):
+            for x in range(self.width):
+                from_pixel_x = x
+                from_pixel_y = self.height - y - 1
+                from_pixel_index = self.pixelIndex(from_pixel_x, from_pixel_y)
+                from_pixel = self.pixels[from_pixel_index]
+
+                new_pixel_index = self.pixelIndex(x, y)
+
+                new_pixels[new_pixel_index] = from_pixel
+        self.pixels = new_pixels
 
     def flip_vertical(self):
-        pass
-    
+        new_pixels = [0, 0, 0] * self.width * self.height
+        for y in range(self.height):
+            for x in range(self.width):
+                from_pixel_x = self.width - x - 1
+                from_pixel_y = y
+                from_pixel_index = self.pixelIndex(from_pixel_x, from_pixel_y)
+                from_pixel = self.pixels[from_pixel_index]
+
+                new_pixel_index = self.pixelIndex(x, y)
+
+                new_pixels[new_pixel_index] = from_pixel
+        self.pixels = new_pixels
+
     def rotate_counter_clockwise(self):
-        pass
+        new_pixels = [0, 0, 0] * self.width * self.height
+        new_width = self.height
+        new_height = self.width
+        for y in range(self.height):
+            for x in range(self.width):
+                to_pixel_x = y
+                to_pixel_y = -x + self.width - 1
+                to_pixel_index = to_pixel_y*new_width + to_pixel_x
+                from_index = self.pixelIndex(x, y)
+                from_pixel = self.pixels[from_index]
+
+                new_pixels[to_pixel_index] = from_pixel
+        self.pixels = new_pixels
+        self.width = new_width
+        self.height = new_height
+
+    def translate(self, dx, dy):
+        new_width = self.width + math.ceil(dx)
+        new_height = self.height + math.ceil(dy)
+        new_pixels = [0, 0, 0] * new_width * new_height
+        for y in range(new_height):
+            for x in range(new_width):
+                to_pixel_x = x
+                to_pixel_y = y
+                to_pixel_index = to_pixel_y*new_width + to_pixel_x
+
+                from_x = to_pixel_x - math.ceil(dx)
+                from_y = to_pixel_y - math.ceil(dy)
+                if from_x < 0 or from_y < 0:
+                    continue
+                from_index = self.pixelIndex(from_x, from_y)
+                if(from_index >= 0):
+                    from_pixel = self.pixels[from_index]
+
+                    new_pixels[to_pixel_index] = from_pixel
+        self.pixels = new_pixels
+        self.width = new_width
+        self.height = new_height
+
+    def scale(self, dx, dy):
+        new_width = math.floor(self.width * dx)
+        new_height = math.floor(self.height * dy)
+        new_pixels = [0, 0, 0] * new_width * new_height
+        for y in range(new_height):
+            for x in range(new_width):
+                to_pixel_x = x
+                to_pixel_y = y
+                to_pixel_index = to_pixel_y*new_width + to_pixel_x
+
+                from_x = math.floor(to_pixel_x / dx)
+                from_y = math.floor(to_pixel_y/dy)
+                if from_x < 0 or from_y < 0:
+                    continue
+                from_index = self.pixelIndex(from_x, from_y)
+                if(from_index >= 0):
+                    from_pixel = self.pixels[from_index]
+
+                    new_pixels[to_pixel_index] = from_pixel
+        self.pixels = new_pixels
+        self.width = new_width
+        self.height = new_height
+
+    def scale_forward(self, dx, dy):
+        new_width = math.floor(self.width * dx)
+        new_height = math.floor(self.height * dy)
+        new_pixels = [0, 0, 0] * new_width * new_height
+        for y in range(self.height):
+            for x in range(self.width):
+                to_pixel_x = math.floor(x * dx)
+                to_pixel_y = math.floor(y * dy)
+                to_pixel_index = to_pixel_y*new_width + to_pixel_x
+
+                from_x = x
+                from_y = y
+                from_index = self.pixelIndex(from_x, from_y)
+                from_pixel = self.pixels[from_index]
+                new_pixels[to_pixel_index] = from_pixel
+        self.pixels = new_pixels
+        self.width = new_width
+        self.height = new_height
+
+    def rotate(self, theta):
+        new_width = self.width*2
+        new_height = self.height*2
+        new_pixels = [0, 0, 0] * new_width * new_height
+        for y in range(new_height):
+            for x in range(new_width):
+                to_pixel_x = x
+                to_pixel_y = y
+                to_pixel_index = to_pixel_y*new_width + to_pixel_x
+
+                to_radius = math.sqrt(to_pixel_x**2 + to_pixel_y**2)
+                to_theta = math.atan2(to_pixel_y, to_pixel_x)
+                from_radius = to_radius
+                from_theta = to_theta - theta
+                from_x = math.floor(math.cos(from_theta) * from_radius)
+                from_y = math.floor(math.sin(from_theta) * from_radius)
+                if from_x < 0 or from_y < 0 or from_x >= self.width or from_y >= self.height:
+                    continue
+                from_index = self.pixelIndex(from_x, from_y)
+                if(from_index >= 0):
+                    from_pixel = self.pixels[from_index]
+
+                    new_pixels[to_pixel_index] = from_pixel
+        self.pixels = new_pixels
+        self.width = new_width
+        self.height = new_height

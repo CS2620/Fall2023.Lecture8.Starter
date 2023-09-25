@@ -33,9 +33,9 @@ class Container:
       filename (string): The filename to save to
     """
     for layer in self.layers:
-      for y in range(layer.height):
-        for x in range(layer.width):
-          self.buffer[x+layer.offset_x,y+layer.offset_y] = layer.pixels[y*layer.width+x]
+      for y in range(min(layer.height, self.height)):
+        for x in range(min(layer.width, self.width)):
+          self.buffer[x+layer.offset_x,y+layer.offset_y] = layer.get_pixel(x,y)
     self.image.save(filename, "png")
 
   
