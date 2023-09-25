@@ -136,6 +136,44 @@ class Layer:
         self.width = new_width
         self.height = new_height
 
+    def interpolate_nearest_neighbor(self, x, y):
+        from_x = math.floor(x)
+        from_y = math.floor(y)
+        if from_x < 0 or from_x >= self.width or from_y < 0 or from_y >= self.height:
+            return None
+        pixel_index = self.pixelIndex(from_x,from_y)
+        return self.pixels[pixel_index]
+    
+    def color_at(self, x, y):
+        from_x = math.floor(x)
+        from_y = math.floor(y)
+        if from_x < 0 or from_x >= self.width or from_y < 0 or from_y >= self.height:
+            return [0,0,0]
+        pixel_index = self.pixelIndex(from_x,from_y)
+        return self.pixels[pixel_index]
+
+    def interpolate_nearest_neighbor(self, x, y):
+        return self.color_at(x,y)
+    
+    def interpolate_bilinear(self, x, y):
+        color_UL = self.color_at(math.floor(x), math.floor(x))
+        color_UR = self.color_at(math.ceil(x), math.floor(y))
+        color_LL = self.color_at(math.floor(x), math.ceil(y))
+        color_LR = self.color_at(math.ceil(x), math.ceil(y))
+
+        x_percent = math.modf(x)[0]
+        y_percent = math.modf(y)[0]
+
+
+        top = color_UL * (1-x_percent) + color_UR * x_percent
+        bottom = color_LL * (1-x_percent) + color_LR * x_percent
+
+        color = top * (1-y_percent) + bottom * y_percent
+        
+        return color
+
+    
+
     def rotate(self, theta):
         new_width = self.width*2
         new_height = self.height*2
@@ -150,15 +188,14 @@ class Layer:
                 to_theta = math.atan2(to_pixel_y, to_pixel_x)
                 from_radius = to_radius
                 from_theta = to_theta - theta
-                from_x = math.floor(math.cos(from_theta) * from_radius)
-                from_y = math.floor(math.sin(from_theta) * from_radius)
-                if from_x < 0 or from_y < 0 or from_x >= self.width or from_y >= self.height:
-                    continue
-                from_index = self.pixelIndex(from_x, from_y)
-                if(from_index >= 0):
-                    from_pixel = self.pixels[from_index]
+                from_x = math.cos(from_theta) * from_radius
+                from_y = math.sin(from_theta) * from_radius
+                # from_color = self.interpolate_nearest_neighbor(from_x,from_y)
+                from_color = self.interpolate_bilinear(from_x,from_y)
 
-                    new_pixels[to_pixel_index] = from_pixel
+                if from_color:
+                    new_pixels[to_pixel_index] = from_color
+
         self.pixels = new_pixels
         self.width = new_width
         self.height = new_height
