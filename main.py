@@ -10,8 +10,8 @@ print("Start")
 
 # Open an image, get its size, and access its pixel buffer
 # image = Image.open("./helpers/Debug1.png")
-image = Image.open("./helpers/DebugTiny.png")
-# image = Image.open("./images/address.jpg")
+# image = Image.open("./helpers/DebugTiny.png")
+image = Image.open("./images/address.jpg")
 bridge_buffer = image.load()
 width = image.size[0]
 height = image.size[1]

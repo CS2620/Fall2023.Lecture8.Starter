@@ -1,5 +1,5 @@
 import math
-
+from color import Color 
 
 class Layer:
     """Class that stores the pixel data of an image layer"""
@@ -156,21 +156,26 @@ class Layer:
         return self.color_at(x,y)
     
     def interpolate_bilinear(self, x, y):
-        color_UL = self.color_at(math.floor(x), math.floor(x))
-        color_UR = self.color_at(math.ceil(x), math.floor(y))
-        color_LL = self.color_at(math.floor(x), math.ceil(y))
-        color_LR = self.color_at(math.ceil(x), math.ceil(y))
+        ul_x, ul_y = math.floor(x), math.floor(y)
+        ur_x, ur_y = math.floor(x+1), math.floor(y)
+        ll_x, ll_y = math.floor(x), math.floor(y+1)
+        lr_x, lr_y = math.floor(x+1), math.floor(y+1)
+        
+        color_UL = self.color_at(ul_x, ul_y)
+        color_UR = self.color_at(ur_x, ur_y)
+        color_LL = self.color_at(ll_x, ll_y)
+        color_LR = self.color_at(lr_x,lr_y)
 
         x_percent = math.modf(x)[0]
         y_percent = math.modf(y)[0]
 
 
-        top = color_UL * (1-x_percent) + color_UR * x_percent
-        bottom = color_LL * (1-x_percent) + color_LR * x_percent
+        top = Color(color_UL).scale(1-x_percent).add(Color(color_UR).scale(x_percent))
+        bottom = Color(color_LL).scale(1-x_percent).add(Color(color_LR).scale(x_percent))
 
-        color = top * (1-y_percent) + bottom * y_percent
+        color = top.scale(1-y_percent).add(bottom.scale(y_percent))
         
-        return color
+        return color.asList()
 
     
 

@@ -35,7 +35,8 @@ class Container:
     for layer in self.layers:
       for y in range(min(layer.height, self.height)):
         for x in range(min(layer.width, self.width)):
-          self.buffer[x+layer.offset_x,y+layer.offset_y] = layer.get_pixel(x,y)
+          color = layer.get_pixel(x,y)
+          self.buffer[x+layer.offset_x,y+layer.offset_y] = color
     self.image.save(filename, "png")
 
   
