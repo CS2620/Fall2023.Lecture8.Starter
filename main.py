@@ -36,8 +36,14 @@ for y in range(height):
 
 
 """ Choose a custom transformation """
+# layer1.flip_horizontal_axis()
+# layer1.flip_vertical_axis()
+# layer1.rotate_counter_clockwise()
+# layer1.translate(100,100)
+# layer1.scale_backward(2,2)
+# layer1.scale_forward(2,2)
 # layer1.scale_forward(1.1,1.1)    
-# layer1.rotate(0)
+layer1.rotate(1)
 
 
 container.save("done.png")
